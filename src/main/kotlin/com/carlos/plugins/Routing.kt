@@ -3,7 +3,9 @@ package com.carlos.plugins
 import com.carlos.repository.ExperienceRepository
 import com.carlos.repository.InMemoryExperienceRepository
 import com.carlos.repository.InMemoryProjectRepository
+import com.carlos.repository.InMemoryTechnologyRepository
 import com.carlos.repository.ProjectRepository
+import com.carlos.repository.TechnologyRepository
 import com.carlos.templates.landingPage
 import io.ktor.server.application.*
 import io.ktor.server.html.*
@@ -14,6 +16,7 @@ import io.ktor.server.routing.*
 fun Application.configureRouting(
     projectRepository: ProjectRepository = InMemoryProjectRepository(),
     experienceRepository: ExperienceRepository = InMemoryExperienceRepository(),
+    technologyRepository: TechnologyRepository = InMemoryTechnologyRepository(),
 ) {
     routing {
         get("/") {
@@ -22,6 +25,7 @@ fun Application.configureRouting(
                     projects = projectRepository.findAll(),
                     profileSummary = experienceRepository.profileSummary(),
                     experiences = experienceRepository.findAll(),
+                    technologies = technologyRepository.findAll(),
                 )
             }
         }

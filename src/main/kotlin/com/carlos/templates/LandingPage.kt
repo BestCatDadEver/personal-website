@@ -2,6 +2,7 @@ package com.carlos.templates
 
 import com.carlos.models.Experience
 import com.carlos.models.Project
+import com.carlos.models.Technology
 import kotlinx.html.HTML
 import kotlinx.html.a
 import kotlinx.html.body
@@ -13,6 +14,7 @@ import kotlinx.html.h3
 import kotlinx.html.head
 import kotlinx.html.header
 import kotlinx.html.id
+import kotlinx.html.img
 import kotlinx.html.lang
 import kotlinx.html.li
 import kotlinx.html.link
@@ -26,10 +28,12 @@ import kotlinx.html.style
 import kotlinx.html.title
 import kotlinx.html.ul
 
-private const val LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod " +
-    "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " +
-    "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in " +
-    "voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+private const val ABOUT_TEXT = "Con una trayectoria consolidada en proyectos de alta criticidad para el sector financiero y consultoría global, me especializo en construir soluciones robustas, escalables y orientadas a resultados de negocio. " +
+        "¿Qué aporto a un equipo?\n" +
+        "\n" +
+        "- Liderazgo y Gestión: Experiencia dirigiendo equipos bajo metodologías Scrum, realizando Code Reviews y definiendo arquitecturas que aseguran la mantenibilidad a largo plazo.\n" +
+        "- Expertiz Multilenguaje: Dominio de Kotlin para ecosistemas Android, junto con un stack Backend en .NET (C#) y Kotlin."
+
 
 private val ACCENTS = listOf("#38bdf8", "#a78bfa", "#f472b6", "#34d399", "#fbbf24", "#fb7185")
 
@@ -37,6 +41,7 @@ fun HTML.landingPage(
     projects: List<Project>,
     profileSummary: String,
     experiences: List<Experience>,
+    technologies: List<Technology>,
 ) {
     lang = "es"
     head {
@@ -122,7 +127,20 @@ fun HTML.landingPage(
                 h2 { +"Acerca de" }
                 div(classes = "card") {
                     style = "--card-accent: ${ACCENTS[2]}"
-                    p { +LOREM_IPSUM }
+                    p { +ABOUT_TEXT }
+                }
+            }
+        }
+        if (technologies.isNotEmpty()) {
+            div(classes = "tech-carousel") {
+                p(classes = "tech-carousel-heading") { +"Tecnologías que utilizo" }
+                div(classes = "tech-track") {
+                    (technologies + technologies).forEach { technology ->
+                        div(classes = "tech-item") {
+                            img(src = technology.iconUrl, alt = technology.name)
+                            span { +technology.name }
+                        }
+                    }
                 }
             }
         }
