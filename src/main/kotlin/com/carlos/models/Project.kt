@@ -9,4 +9,5 @@ data class Project(
     val description: String,
     val url: String,
     val tags: List<String> = emptyList(),
+    val featured: Boolean = false,
 )

@@ -22,6 +22,7 @@ import kotlinx.html.nav
 import kotlinx.html.p
 import kotlinx.html.section
 import kotlinx.html.span
+import kotlinx.html.style
 import kotlinx.html.title
 import kotlinx.html.ul
 
@@ -29,6 +30,8 @@ private const val LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipisc
     "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " +
     "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in " +
     "voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+
+private val ACCENTS = listOf("#38bdf8", "#a78bfa", "#f472b6", "#34d399", "#fbbf24", "#fb7185")
 
 fun HTML.landingPage(
     projects: List<Project>,
@@ -59,8 +62,10 @@ fun HTML.landingPage(
                 h2 { +"Experiencia" }
                 p(classes = "profile-summary") { +profileSummary }
                 div(classes = "experience-list") {
-                    experiences.forEach { experience ->
+                    experiences.forEachIndexed { index, experience ->
+                        val accent = ACCENTS[index % ACCENTS.size]
                         div(classes = "card experience-card") {
+                            style = "--card-accent: $accent"
                             div(classes = "experience-header") {
                                 div {
                                     h3 { +experience.role }
@@ -89,8 +94,14 @@ fun HTML.landingPage(
                     p { +"Todavía no hay proyectos publicados." }
                 } else {
                     div(classes = "project-grid") {
-                        projects.forEach { project ->
-                            div(classes = "project-card") {
+                        projects.forEachIndexed { index, project ->
+                            val accent = ACCENTS[index % ACCENTS.size]
+                            val cardClasses = if (project.featured) "project-card featured" else "project-card"
+                            div(classes = cardClasses) {
+                                style = "--card-accent: $accent"
+                                if (project.featured) {
+                                    span(classes = "featured-badge") { +"★ Destacado" }
+                                }
                                 h3 { +project.name }
                                 p { +project.description }
                                 if (project.tags.isNotEmpty()) {
@@ -100,7 +111,7 @@ fun HTML.landingPage(
                                         }
                                     }
                                 }
-                                a(href = project.url, target = "_blank") { +"Ver proyecto" }
+                                a(href = project.url, target = "_blank") { +"Ver proyecto ↗" }
                             }
                         }
                     }
@@ -110,6 +121,7 @@ fun HTML.landingPage(
                 id = "acerca-de"
                 h2 { +"Acerca de" }
                 div(classes = "card") {
+                    style = "--card-accent: ${ACCENTS[2]}"
                     p { +LOREM_IPSUM }
                 }
             }
