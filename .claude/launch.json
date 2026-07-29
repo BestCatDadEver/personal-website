@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "personal-website",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "C:\\Users\\lowco\\Downloads\\personal-website\\gradlew.bat", "run"],
+      "port": 8080
+    }
+  ]
+}

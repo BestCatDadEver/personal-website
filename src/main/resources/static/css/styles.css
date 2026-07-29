@@ -138,6 +138,43 @@ body::before {
     transform: translateY(-2px);
 }
 
+.lang-switch {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 999px;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.35rem 0.55rem;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.5;
+    filter: grayscale(60%);
+    transition: opacity 0.2s ease, filter 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.lang-btn:hover {
+    opacity: 0.85;
+    filter: grayscale(20%);
+    transform: translateY(-1px);
+}
+
+.lang-btn.active {
+    opacity: 1;
+    filter: grayscale(0%);
+    background: var(--surface-border);
+}
+
 main {
     max-width: 1000px;
     margin: 0 auto;
@@ -340,16 +377,60 @@ section h2::before {
     font-size: 1.5rem;
 }
 
-.featured-badge {
+.project-thumb {
     position: relative;
+    aspect-ratio: 21 / 9;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(
+        135deg,
+        var(--card-accent, var(--accent)),
+        color-mix(in srgb, var(--card-accent, var(--accent)) 45%, black)
+    );
+}
+
+.project-thumb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.28), transparent 55%);
+    pointer-events: none;
+}
+
+.project-thumb svg {
+    position: relative;
+    width: 32%;
+    height: 32%;
+}
+
+.project-thumb-img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+}
+
+.project-card.featured .project-thumb {
+    aspect-ratio: 21 / 7;
+}
+
+.featured-badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
     align-self: flex-start;
-    background: color-mix(in srgb, var(--card-accent, var(--accent)) 20%, transparent);
-    color: var(--card-accent, var(--accent));
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.03em;
     padding: 0.2rem 0.6rem;
     border-radius: 999px;
+    backdrop-filter: blur(4px);
 }
 
 .project-card h3 {

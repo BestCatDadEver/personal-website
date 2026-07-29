@@ -24,6 +24,7 @@ fun Application.configureRouting(
                 landingPage(
                     projects = projectRepository.findAll(),
                     profileSummary = experienceRepository.profileSummary(),
+                    profileSummaryEn = experienceRepository.profileSummaryEn(),
                     experiences = experienceRepository.findAll(),
                     technologies = technologyRepository.findAll(),
                 )
