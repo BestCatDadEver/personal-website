@@ -8,7 +8,10 @@ interface TechnologyRepository {
 
 class InMemoryTechnologyRepository : TechnologyRepository {
 
-    private val iconBaseUrl = "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons"
+    // Iconos auto-hospedados. Servirlos desde un CDN publico significaba que un
+    // compromiso del paquete llegaba a los visitantes sin revision, y que la IP de
+    // cada visitante se filtraba a un tercero.
+    private val iconBaseUrl = "/static/images/tech"
 
     private val technologies = listOf(
         Technology("Kotlin", "$iconBaseUrl/kotlin.svg"),

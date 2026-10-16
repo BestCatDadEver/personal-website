@@ -1,0 +1,29 @@
+name: Deploy
+
+# Solo despliega cuando el CI de la rama principal esta en verde.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      # El deploy hook de Render es una URL con clave: llamarla arranca un
+      # build del servicio a partir del ultimo commit de la rama conectada.
+      # Se guarda en secrets porque cualquiera con esa URL puede desplegar.
+      - name: Trigger Render deploy
+        run: curl --fail --silent --show-error "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}

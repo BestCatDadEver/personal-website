@@ -1,6 +1,7 @@
 package com.carlos.repository
 
 import com.carlos.models.Project
+import com.carlos.models.ProjectIcon
 
 interface ProjectRepository {
     fun findAll(): List<Project>
@@ -18,7 +19,7 @@ class InMemoryProjectRepository : ProjectRepository {
                 "and save favorites with navigation between dashboard and detail screens.",
             url = "https://github.com/BestCatDadEver/pokedex",
             tags = listOf("Kotlin", "Android", "MVVM", "Compose"),
-            icon = "pokedex",
+            icon = ProjectIcon.POKEDEX,
             imageUrl = "/static/images/pokedex.jpg",
         ),
     )

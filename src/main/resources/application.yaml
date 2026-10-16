@@ -3,4 +3,15 @@ ktor:
         modules:
             - com.carlos.ApplicationKt.module
     deployment:
-        port: 8080
+        # Las PaaS (Fly.io, Cloud Run, Railway) inyectan el puerto en $PORT.
+        port: $PORT:8080
+        # En un contenedor debe ser 0.0.0.0 para que el proxy de la plataforma
+        # alcance el proceso. En un VPS con nginx delante, ponlo en 127.0.0.1
+        # para que el puerto no quede expuesto en la interfaz publica.
+        host: $APP_HOST:0.0.0.0
+
+app:
+    security:
+        # Activa HSTS, redireccion a HTTPS y confianza en X-Forwarded-*.
+        # Requiere estar detras de un proxy TLS; en local debe quedar en false.
+        httpsOnly: $APP_HTTPS_ONLY:false

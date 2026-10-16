@@ -1,0 +1,28 @@
+# Blueprint de Render (https://render.com/docs/blueprint-spec).
+# Render lee este fichero desde la raiz del repo y crea/actualiza el servicio.
+services:
+  - type: web
+    name: carlos-gelpi-portfolio
+    # Se despliega la misma imagen que ya se usaba en Fly: Render construye el
+    # Dockerfile del repo en vez de intentar adivinar el stack.
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # Frankfurt es la region gratuita mas cercana a Espana.
+    region: frankfurt
+    plan: free
+    # El despliegue lo dispara el workflow de GitHub Actions cuando el CI esta
+    # en verde, no cada push. Pon "true" si prefieres desplegar sin esa barrera.
+    autoDeploy: false
+    healthCheckPath: /healthz
+    envVars:
+      # Dentro del contenedor hay que escuchar en todas las interfaces para que
+      # el proxy de Render alcance el proceso.
+      - key: APP_HOST
+        value: 0.0.0.0
+      # Render termina TLS en el edge y reenvia X-Forwarded-Proto, asi que la
+      # app puede emitir HSTS y confiar en las cabeceras del proxy.
+      - key: APP_HTTPS_ONLY
+        value: "true"
+      - key: PORT
+        value: "8080"

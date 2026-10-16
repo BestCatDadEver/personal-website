@@ -1,0 +1,30 @@
+# Configuracion de despliegue en Fly.io.
+# El nombre debe ser unico en toda la plataforma; cambialo si "fly launch" avisa
+# de que ya esta ocupado.
+app = "carlos-gelpi-portfolio"
+primary_region = "mad"
+
+[build]
+
+[env]
+  # Dentro del contenedor hay que escuchar en todas las interfaces para que el
+  # proxy de Fly alcance el proceso.
+  APP_HOST = "0.0.0.0"
+  # Fly termina TLS en el edge y reenvia X-Forwarded-Proto, asi que la app puede
+  # emitir HSTS y confiar en las cabeceras del proxy.
+  APP_HTTPS_ONLY = "true"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  # Redireccion HTTP -> HTTPS en el edge, antes de llegar a la aplicacion.
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  # Con "suspend" la maquina se congela en vez de apagarse: el primer acceso tras
+  # inactividad tarda unos cientos de milisegundos en lugar de un arranque frio.
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

@@ -4,7 +4,7 @@
     {
       "name": "personal-website",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "C:\\Users\\lowco\\Downloads\\personal-website\\gradlew.bat", "run"],
+      "runtimeArgs": ["/c", ".\\gradlew.bat", "run"],
       "port": 8080
     }
   ]

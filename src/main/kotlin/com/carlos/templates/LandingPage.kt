@@ -26,7 +26,6 @@ import kotlinx.html.p
 import kotlinx.html.script
 import kotlinx.html.section
 import kotlinx.html.span
-import kotlinx.html.style
 import kotlinx.html.title
 import kotlinx.html.ul
 import kotlinx.html.unsafe
@@ -43,8 +42,22 @@ private const val ABOUT_TEXT_EN = "With a solid track record in high-criticality
         "- Leadership and Management: Experience leading teams under Scrum methodologies, performing Code Reviews and defining architectures that ensure long-term maintainability.\n" +
         "- Multi-language Expertise: Strong command of Kotlin for Android ecosystems, along with a Backend stack in .NET (C#) and Kotlin."
 
+private const val CONTACT_EMAIL = "cgelpi1439@gmail.com"
 
-private val ACCENTS = listOf("#38bdf8", "#a78bfa", "#f472b6", "#34d399", "#fbbf24", "#fb7185")
+private const val LINKEDIN_URL = "https://www.linkedin.com/in/cgelpicx9/"
+private const val GITHUB_URL = "https://github.com/BestCatDadEver"
+
+
+/**
+ * Numero de clases `.accent-N` definidas en styles.css.
+ *
+ * El color vive en la hoja de estilos y no en un atributo style="" inline: asi la
+ * Content-Security-Policy puede mantener `style-src 'self'` sin 'unsafe-inline',
+ * que es lo que desactivaria buena parte de su proteccion frente a XSS.
+ */
+private const val ACCENT_COUNT = 6
+
+private fun accentClass(index: Int): String = "accent-${index.mod(ACCENT_COUNT)}"
 
 fun HTML.landingPage(
     projects: List<Project>,
@@ -68,6 +81,7 @@ fun HTML.landingPage(
                     a(href = "#experiencia") { attributes["data-en"] = "Experience"; +"Experiencia" }
                     a(href = "#proyectos") { attributes["data-en"] = "Projects"; +"Proyectos" }
                     a(href = "#acerca-de") { attributes["data-en"] = "About"; +"Acerca de" }
+                    a(href = "#contacto") { attributes["data-en"] = "Contact"; +"Contacto" }
                 }
                 div(classes = "lang-switch") {
                     attributes["role"] = "group"
@@ -92,16 +106,28 @@ fun HTML.landingPage(
         main {
             section(classes = "section") {
                 id = "experiencia"
-                h2 { attributes["data-en"] = "Experience"; +"Experiencia" }
+                div(classes = "section-heading") {
+                    h2 { attributes["data-en"] = "Experience"; +"Experiencia" }
+                    div(classes = "social-links") {
+                        a(href = safeHref(LINKEDIN_URL), target = "_blank") {
+                            attributes["rel"] = "noopener noreferrer"
+                            attributes["aria-label"] = "LinkedIn"
+                            unsafe { raw(socialIconMarkup(SocialNetwork.LINKEDIN)) }
+                        }
+                        a(href = safeHref(GITHUB_URL), target = "_blank") {
+                            attributes["rel"] = "noopener noreferrer"
+                            attributes["aria-label"] = "GitHub"
+                            unsafe { raw(socialIconMarkup(SocialNetwork.GITHUB)) }
+                        }
+                    }
+                }
                 p(classes = "profile-summary") {
                     attributes["data-en"] = profileSummaryEn
                     +profileSummary
                 }
                 div(classes = "experience-list") {
                     experiences.forEachIndexed { index, experience ->
-                        val accent = ACCENTS[index % ACCENTS.size]
-                        div(classes = "card experience-card") {
-                            style = "--card-accent: $accent"
+                        div(classes = "card experience-card ${accentClass(index)}") {
                             div(classes = "experience-header") {
                                 div {
                                     h3 {
@@ -142,13 +168,12 @@ fun HTML.landingPage(
                 } else {
                     div(classes = "project-grid") {
                         projects.forEachIndexed { index, project ->
-                            val accent = ACCENTS[index % ACCENTS.size]
-                            val cardClasses = if (project.featured) "project-card featured" else "project-card"
-                            div(classes = cardClasses) {
-                                style = "--card-accent: $accent"
+                            val featuredClass = if (project.featured) " featured" else ""
+                            div(classes = "project-card$featuredClass ${accentClass(index)}") {
                                 div(classes = "project-thumb") {
-                                    if (project.imageUrl != null) {
-                                        img(src = project.imageUrl, alt = project.name, classes = "project-thumb-img")
+                                    val thumbSrc = project.imageUrl?.let { safeImageSrc(it) }
+                                    if (thumbSrc != null) {
+                                        img(src = thumbSrc, alt = project.name, classes = "project-thumb-img")
                                     } else {
                                         unsafe { raw(projectIconMarkup(project.icon)) }
                                     }
@@ -171,7 +196,8 @@ fun HTML.landingPage(
                                         }
                                     }
                                 }
-                                a(href = project.url, target = "_blank") {
+                                a(href = safeHref(project.url), target = "_blank") {
+                                    attributes["rel"] = "noopener noreferrer"
                                     attributes["data-en"] = "View project ↗"
                                     +"Ver proyecto ↗"
                                 }
@@ -183,11 +209,26 @@ fun HTML.landingPage(
             section(classes = "section") {
                 id = "acerca-de"
                 h2 { attributes["data-en"] = "About"; +"Acerca de" }
-                div(classes = "card") {
-                    style = "--card-accent: ${ACCENTS[2]}"
+                div(classes = "card ${accentClass(2)}") {
                     p {
                         attributes["data-en"] = ABOUT_TEXT_EN
                         +ABOUT_TEXT
+                    }
+                }
+            }
+            section(classes = "section") {
+                id = "contacto"
+                h2 { attributes["data-en"] = "Contact"; +"Contacto" }
+                div(classes = "card contact-card ${accentClass(3)}") {
+                    p {
+                        attributes["data-en"] = "Have a project in mind or want to get in touch? " +
+                            "Send me an email and I'll get back to you as soon as possible."
+                        +("¿Tenés un proyecto en mente o querés ponerte en contacto? " +
+                            "Envíame un correo y te responderé a la brevedad.")
+                    }
+                    a(href = safeMailto(CONTACT_EMAIL), classes = "contact-button") {
+                        attributes["data-en"] = "✉ Send an email"
+                        +"✉ Enviar un correo"
                     }
                 }
             }
@@ -201,7 +242,9 @@ fun HTML.landingPage(
                 div(classes = "tech-track") {
                     (technologies + technologies).forEach { technology ->
                         div(classes = "tech-item") {
-                            img(src = technology.iconUrl, alt = technology.name)
+                            safeImageSrc(technology.iconUrl)?.let { iconSrc ->
+                                img(src = iconSrc, alt = technology.name)
+                            }
                             span { +technology.name }
                         }
                     }

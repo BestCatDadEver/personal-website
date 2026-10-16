@@ -33,6 +33,12 @@ fun Application.configureRouting(
         get("/api/projects") {
             call.respond(projectRepository.findAll())
         }
+        // Sonda de salud de la plataforma (Render). La comprobacion llega por
+        // HTTP interno, sin TLS, asi que esta excluida de la redireccion a
+        // HTTPS en configureHTTP().
+        get("/healthz") {
+            call.respondText("ok")
+        }
         staticResources("/static", "static")
     }
 }

@@ -1,0 +1,21 @@
+# Mantiene fuera de la imagen todo lo que no se necesita para compilar.
+# .git y .idea importan por seguridad: llevan historial y rutas locales que no
+# deben acabar dentro de un contenedor publicado.
+.git
+.github
+.gitignore
+.idea
+.claude
+.vscode
+
+build/
+.gradle/
+out/
+bin/
+
+*.md
+*.iml
+Dockerfile
+.dockerignore
+fly.toml
+render.yaml

@@ -120,6 +120,10 @@ body::before {
     --tab-accent: #f472b6;
 }
 
+.nav-tabs a:nth-child(4) {
+    --tab-accent: #34d399;
+}
+
 .nav-tabs a {
     color: var(--muted);
     text-decoration: none;
@@ -201,6 +205,60 @@ section h2::before {
     border-radius: 999px;
     background: linear-gradient(180deg, var(--accent), #a78bfa);
 }
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-heading h2 {
+    margin-bottom: 0;
+}
+
+.social-links {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--muted);
+    border: 1px solid var(--surface-border);
+    border-radius: 999px;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.social-links a svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.social-links a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+/*
+ * Acentos por tarjeta.
+ *
+ * Se declaran como clases y no como atributos style="" inline para que la
+ * Content-Security-Policy pueda mantener `style-src 'self'` sin 'unsafe-inline'.
+ */
+.accent-0 { --card-accent: #38bdf8; }
+.accent-1 { --card-accent: #a78bfa; }
+.accent-2 { --card-accent: #f472b6; }
+.accent-3 { --card-accent: #34d399; }
+.accent-4 { --card-accent: #fbbf24; }
+.accent-5 { --card-accent: #fb7185; }
 
 .card {
     position: relative;
@@ -580,6 +638,33 @@ section h2::before {
         justify-content: center;
         width: 100%;
     }
+}
+
+.contact-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+}
+
+.contact-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #000;
+    background: var(--card-accent, var(--accent));
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.65rem 1.4rem;
+    border-radius: 999px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contact-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -14px var(--card-accent, var(--accent));
 }
 
 footer {
