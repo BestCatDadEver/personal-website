@@ -11,9 +11,9 @@ services:
     # Frankfurt es la region gratuita mas cercana a Espana.
     region: frankfurt
     plan: free
-    # El despliegue lo dispara el workflow de GitHub Actions cuando el CI esta
-    # en verde, no cada push. Pon "true" si prefieres desplegar sin esa barrera.
-    autoDeploy: false
+    # Despliega solo si los checks de CI de la rama pasan en verde. Con
+    # "commit" desplegaria cada push sin esperar al CI; con "off", nunca.
+    autoDeployTrigger: checksPass
     healthCheckPath: /healthz
     envVars:
       # Dentro del contenedor hay que escuchar en todas las interfaces para que
