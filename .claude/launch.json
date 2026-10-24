@@ -4,7 +4,10 @@
     {
       "name": "personal-website",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", ".\\gradlew.bat", "run"],
+      "runtimeArgs": [
+        "/c",
+        ".\\gradlew.bat generateSite && python -m http.server 8080 --directory build\\site"
+      ],
       "port": 8080
     }
   ]

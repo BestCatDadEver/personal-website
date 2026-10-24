@@ -1,36 +1,46 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 group = "com.carlos"
 version = "0.0.1"
 
-application {
-    mainClass = "io.ktor.server.netty.EngineMain"
-}
-
 kotlin {
     jvmToolchain(21)
 }
 
 dependencies {
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.host.common)
-    implementation(libs.ktor.server.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.server.netty)
-    implementation(libs.ktor.server.html.builder)
-    implementation(libs.ktor.server.call.logging)
-    implementation(libs.ktor.server.status.pages)
-    implementation(libs.ktor.server.default.headers)
-    implementation(libs.ktor.server.rate.limit)
-    implementation(libs.ktor.server.hsts)
-    implementation(libs.ktor.server.http.redirect)
-    implementation(libs.ktor.server.forwarded.header)
-    implementation(libs.logback.classic)
-    implementation(libs.ktor.server.config.yaml)
-    testImplementation(libs.ktor.server.test.host)
+    implementation(libs.kotlinx.html)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.kotlin.test.junit)
+}
+
+// Directorio que se publica en GitHub Pages.
+val siteDir: Provider<Directory> = layout.buildDirectory.dir("site")
+
+// Los assets se copian con Sync y no con Copy para que al renombrar o borrar un
+// fichero en src/ desaparezca tambien del sitio generado.
+val copyStaticAssets by tasks.registering(Sync::class) {
+    description = "Copia css/js/imagenes al sitio generado."
+    from(layout.projectDirectory.dir("src/main/resources/static"))
+    into(siteDir.map { it.dir("static") })
+}
+
+// GitHub Pages sirve un repo de proyecto bajo /<repo>/. Con un dominio propio
+// servido desde la raiz: ./gradlew generateSite -PsitePath=/
+val sitePath: String = (findProperty("sitePath") as String?) ?: "/personal-website/"
+
+val generateSite by tasks.registering(JavaExec::class) {
+    group = "build"
+    description = "Renderiza el sitio estatico en build/site."
+    dependsOn(copyStaticAssets)
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "com.carlos.GenerateSiteKt"
+    argumentProviders.add { listOf(siteDir.get().asFile.absolutePath, sitePath) }
+}
+
+// "gradlew build" deja el sitio listo sin tener que acordarse de la tarea.
+tasks.named("assemble") {
+    dependsOn(generateSite)
 }

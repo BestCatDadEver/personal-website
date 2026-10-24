@@ -11,7 +11,7 @@ class InMemoryTechnologyRepository : TechnologyRepository {
     // Iconos auto-hospedados. Servirlos desde un CDN publico significaba que un
     // compromiso del paquete llegaba a los visitantes sin revision, y que la IP de
     // cada visitante se filtraba a un tercero.
-    private val iconBaseUrl = "/static/images/tech"
+    private val iconBaseUrl = "static/images/tech"
 
     private val technologies = listOf(
         Technology("Kotlin", "$iconBaseUrl/kotlin.svg"),

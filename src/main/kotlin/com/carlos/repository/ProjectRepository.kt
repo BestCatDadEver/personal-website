@@ -20,7 +20,7 @@ class InMemoryProjectRepository : ProjectRepository {
             url = "https://github.com/BestCatDadEver/pokedex",
             tags = listOf("Kotlin", "Android", "MVVM", "Compose"),
             icon = ProjectIcon.POKEDEX,
-            imageUrl = "/static/images/pokedex.jpg",
+            imageUrl = "static/images/pokedex.jpg",
         ),
     )
 

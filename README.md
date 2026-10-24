@@ -1,42 +1,80 @@
 # personal-website
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+Portfolio personal de Carlos Gelpi. Sitio estatico publicado en GitHub Pages.
 
-Here are some useful links to get you started:
+## Como funciona
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+El diseño vive en plantillas de Kotlin (`src/main/kotlin/com/carlos/templates`)
+escritas con [kotlinx.html](https://github.com/Kotlin/kotlinx.html), y los
+contenidos en repositorios en memoria (`.../repository`). En el build,
+`GenerateSite.kt` las renderiza una sola vez y escribe el sitio en `build/site`.
 
-## Features
+Antes esto era un servidor Ktor que renderizaba la pagina en cada peticion. Se
+retiro al pasar a GitHub Pages, que solo sirve ficheros estaticos. Las plantillas
+y los repositorios no cambiaron: lo unico que cambio es *cuando* se renderizan,
+asi que el diseño sigue teniendo una sola fuente de verdad.
 
-Here's a list of features included in this project:
+Lo que se genera:
 
-| Name                                                                   | Description                                                                        |
-| ------------------------------------------------------------------------|------------------------------------------------------------------------------------ |
-| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
-| [Static Content](https://start.ktor.io/p/static-content)               | Serves static files from defined locations                                         |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
+| Fichero             | Origen                                              |
+| ------------------- | --------------------------------------------------- |
+| `index.html`        | `landingPage` en `templates/LandingPage.kt`         |
+| `404.html`          | `notFoundPage`, sustituye al StatusPages del servidor |
+| `api/projects.json` | El antiguo endpoint `/api/projects`, ahora estatico |
+| `static/`           | Copia de `src/main/resources/static`                |
 
-## Building & Running
+## Tareas
 
-To build or run the project, use one of the following tasks:
+| Tarea                     | Descripcion                                  |
+| ------------------------- | -------------------------------------------- |
+| `./gradlew test`          | Corre los tests                              |
+| `./gradlew generateSite`  | Genera el sitio en `build/site`              |
+| `./gradlew build`         | Tests + sitio generado                       |
 
-| Task                                    | Description                                                          |
-| -----------------------------------------|---------------------------------------------------------------------- |
-| `./gradlew test`                        | Run the tests                                                        |
-| `./gradlew build`                       | Build everything                                                     |
-| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `./gradlew run`                         | Run the server                                                       |
-| `./gradlew runDocker`                   | Run using the local docker image                                     |
-
-If the server starts successfully, you'll see the following output:
+### Ver el sitio en local
 
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+./gradlew generateSite
+python -m http.server 8080 --directory build/site
 ```
 
+Las rutas a los assets son relativas, asi que el sitio funciona igual servido
+desde la raiz que desde un subdirectorio.
+
+## Despliegue
+
+`.github/workflows/pages.yml` construye y publica en cada push a `master`. Corre
+los tests antes de desplegar, de modo que un fallo detiene la publicacion.
+
+Requiere un ajuste manual una sola vez: **Settings -> Pages -> Source:
+"GitHub Actions"**. Sin eso el workflow falla al intentar publicar.
+
+### Base path
+
+Pages sirve un repo de proyecto bajo `/<repo>/`. El workflow toma esa ruta de
+`actions/configure-pages` y se la pasa al generador. Solo la necesita `404.html`:
+Pages devuelve ese fichero para rutas de cualquier profundidad, asi que una ruta
+relativa se resolveria contra la URL pedida y no contra el sitio.
+
+Para generar como si el sitio colgara de la raiz (dominio propio):
+
+```
+./gradlew generateSite -PsitePath=/
+```
+
+## Seguridad
+
+Las protecciones que dependian del servidor ya no existen, porque GitHub Pages no
+permite configurar cabeceras HTTP:
+
+- **Se conserva** la Content-Security-Policy, ahora en un `<meta http-equiv>` en
+  cada pagina. El sitio no carga nada de terceros, asi que sigue siendo `'self'`
+  estricta, sin `unsafe-inline`.
+- **Se pierde** `frame-ancestors` (y su equivalente `X-Frame-Options`): el
+  navegador solo los acepta como cabecera, no en un `<meta>`. El sitio es
+  embebible en un iframe ajeno. Al ser publico y sin sesion ni formularios, no
+  hay nada que un clickjacking pueda aprovechar.
+- **Se pierden** HSTS, el rate limit y el saneado de logs. Pages fuerza HTTPS y
+  envia su propia HSTS en `github.io`, y el resto no aplica sin servidor.
+- **Se conserva** el saneado de URLs (`templates/SafeUrl.kt`), que corre ahora en
+  tiempo de generacion en vez de en cada peticion.

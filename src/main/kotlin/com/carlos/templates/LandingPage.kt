@@ -70,8 +70,12 @@ fun HTML.landingPage(
     head {
         meta(charset = "UTF-8")
         meta(name = "viewport", content = "width=device-width, initial-scale=1")
+        meta {
+            attributes["http-equiv"] = "Content-Security-Policy"
+            attributes["content"] = CONTENT_SECURITY_POLICY
+        }
         title("Carlos Gelpi | Portfolio")
-        link(rel = "stylesheet", href = "/static/css/styles.css")
+        link(rel = "stylesheet", href = "static/css/styles.css")
     }
     body {
         header(classes = "site-header") {
@@ -254,6 +258,6 @@ fun HTML.landingPage(
         footer {
             p { +"© ${java.time.Year.now()} Carlos Gelpi" }
         }
-        script(src = "/static/js/i18n.js") {}
+        script(src = "static/js/i18n.js") {}
     }
 }
