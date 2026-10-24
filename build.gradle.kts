@@ -40,6 +40,17 @@ val generateSite by tasks.registering(JavaExec::class) {
     argumentProviders.add { listOf(siteDir.get().asFile.absolutePath, sitePath) }
 }
 
+// Ver el sitio en local. Sirve build/site igual que lo haria Pages, porque
+// abrir index.html con file:// no reproduce rutas, 404 ni tipos MIME.
+val serveSite by tasks.registering(JavaExec::class) {
+    group = "application"
+    description = "Genera el sitio y lo sirve en http://localhost:8080."
+    dependsOn(generateSite)
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "com.carlos.DevServerKt"
+    argumentProviders.add { listOf(siteDir.get().asFile.absolutePath, "8080") }
+}
+
 // "gradlew build" deja el sitio listo sin tener que acordarse de la tarea.
 tasks.named("assemble") {
     dependsOn(generateSite)

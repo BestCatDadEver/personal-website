@@ -6,7 +6,7 @@
       "runtimeExecutable": "cmd",
       "runtimeArgs": [
         "/c",
-        ".\\gradlew.bat generateSite && python -m http.server 8080 --directory build\\site"
+        ".\\gradlew.bat serveSite"
       ],
       "port": 8080
     }

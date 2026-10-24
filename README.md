@@ -29,17 +29,28 @@ Lo que se genera:
 | ------------------------- | -------------------------------------------- |
 | `./gradlew test`          | Corre los tests                              |
 | `./gradlew generateSite`  | Genera el sitio en `build/site`              |
+| `./gradlew serveSite`     | Genera el sitio y lo sirve en localhost:8080 |
 | `./gradlew build`         | Tests + sitio generado                       |
 
 ### Ver el sitio en local
 
 ```
-./gradlew generateSite
-python -m http.server 8080 --directory build/site
+./gradlew serveSite
 ```
 
+`DevServer.kt` sirve `build/site` con el servidor HTTP del JDK, sin dependencias
+ni despliegue: solo reproduce lo que hace Pages, incluido devolver `404.html`
+ante rutas desconocidas. Abrir `index.html` con `file://` no vale, porque no
+reproduce rutas, 404 ni tipos MIME.
+
 Las rutas a los assets son relativas, asi que el sitio funciona igual servido
-desde la raiz que desde un subdirectorio.
+desde la raiz que desde un subdirectorio. La excepcion es `404.html`, que lleva
+el base path de produccion incrustado y en local sale sin estilos. Para verlo
+como se vera en un dominio propio:
+
+```
+./gradlew serveSite -PsitePath=/
+```
 
 ## Despliegue
 
