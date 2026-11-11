@@ -120,6 +120,44 @@ class StaticSiteTest {
     }
 
     @Test
+    fun `todopro is listed among the projects`() {
+        val todopro = InMemoryProjectRepository().findAll().single { it.slug == "todopro" }
+        assertTrue(html.contains(todopro.name), "TodoPro no aparece en la pagina")
+        assertTrue(html.contains(todopro.description), "Falta la descripcion de TodoPro")
+    }
+
+    @Test
+    fun `every card opens an existing dialog`() {
+        val slugs = Regex("""data-project-open="([^"]+)"""")
+            .findAll(html)
+            .map { it.groupValues[1] }
+            .toList()
+        assertEquals(
+            InMemoryProjectRepository().findAll().size,
+            slugs.size,
+            "Hay proyectos sin tarjeta clicable: $slugs",
+        )
+        slugs.forEach { slug ->
+            assertTrue(html.contains("""id="project-$slug""""), "Falta la ficha de $slug")
+        }
+    }
+
+    /** Una ficha con el atributo "open" se veria desplegada nada mas cargar. */
+    @Test
+    fun `dialogs start closed`() {
+        val open = Regex("""<dialog\b[^>]*\sopen[\s>=]""").findAll(html).map { it.value }.toList()
+        assertTrue(open.isEmpty(), "Hay fichas abiertas al cargar: $open")
+    }
+
+    @Test
+    fun `dialog links open externally and safely`() {
+        val linked = InMemoryProjectRepository().findAll().flatMap { it.links }
+        linked.forEach { link ->
+            assertTrue(html.contains(link.url), "Falta el enlace ${link.url}")
+        }
+    }
+
+    @Test
     fun `projects json is valid and not empty`() {
         val projects = InMemoryProjectRepository().findAll()
         val parsed = Json.parseToJsonElement(renderProjectsJson(projects)).jsonArray

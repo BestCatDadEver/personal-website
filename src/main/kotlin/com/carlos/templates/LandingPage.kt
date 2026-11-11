@@ -3,7 +3,9 @@ package com.carlos.templates
 import com.carlos.models.Experience
 import com.carlos.models.Project
 import com.carlos.models.Technology
+import kotlinx.html.FlowContent
 import kotlinx.html.HTML
+import kotlinx.html.dialog
 import kotlinx.html.a
 import kotlinx.html.body
 import kotlinx.html.div
@@ -58,6 +60,111 @@ private const val GITHUB_URL = "https://github.com/BestCatDadEver"
 private const val ACCENT_COUNT = 6
 
 private fun accentClass(index: Int): String = "accent-${index.mod(ACCENT_COUNT)}"
+
+private fun dialogId(project: Project): String = "project-${project.slug}"
+
+/**
+ * Tarjeta de la rejilla. Abre la ficha del proyecto al pulsarla.
+ *
+ * El disparador es la tarjeta entera con role="button" y no un <a> o un <button>
+ * de verdad porque la ficha lleva dentro sus propios enlaces, y anidar elementos
+ * interactivos deja el markup invalido y la navegacion por teclado rota.
+ */
+private fun FlowContent.projectCard(project: Project, accent: String) {
+    val featuredClass = if (project.featured) " featured" else ""
+    div(classes = "project-card$featuredClass $accent") {
+        attributes["role"] = "button"
+        attributes["tabindex"] = "0"
+        attributes["aria-haspopup"] = "dialog"
+        attributes["data-project-open"] = project.slug
+        div(classes = "project-thumb") {
+            val thumbSrc = project.imageUrl?.let { safeImageSrc(it) }
+            if (thumbSrc != null) {
+                img(src = thumbSrc, alt = project.name, classes = "project-thumb-img")
+            } else {
+                unsafe { raw(projectIconMarkup(project.icon)) }
+            }
+            if (project.featured) {
+                span(classes = "featured-badge") {
+                    attributes["data-en"] = "★ Featured"
+                    +"★ Destacado"
+                }
+            }
+        }
+        h3 { +project.name }
+        p {
+            attributes["data-en"] = project.descriptionEn
+            +project.description
+        }
+        if (project.tags.isNotEmpty()) {
+            ul(classes = "project-tags") {
+                project.tags.forEach { tag ->
+                    li { span { +tag } }
+                }
+            }
+        }
+        span(classes = "project-card-cta") {
+            attributes["data-en"] = "View details →"
+            +"Ver detalles →"
+        }
+    }
+}
+
+/**
+ * Ficha del proyecto. Usa <dialog> en vez de un div propio para no reimplementar
+ * el cierre con Escape, la captura del foco y el fondo inerte.
+ */
+private fun FlowContent.projectDialog(project: Project, accent: String) {
+    dialog(classes = "project-dialog $accent") {
+        attributes["id"] = dialogId(project)
+        attributes["aria-labelledby"] = "${dialogId(project)}-title"
+        div(classes = "project-dialog-body") {
+            button(classes = "project-dialog-close") {
+                attributes["type"] = "button"
+                attributes["data-project-close"] = ""
+                attributes["aria-label"] = "Cerrar"
+                +"×"
+            }
+            h3 {
+                attributes["id"] = "${dialogId(project)}-title"
+                +project.name
+            }
+            p(classes = "project-dialog-detail") {
+                attributes["data-en"] = project.detailEn
+                +project.detail
+            }
+            if (project.tags.isNotEmpty()) {
+                ul(classes = "project-tags") {
+                    project.tags.forEach { tag ->
+                        li { span { +tag } }
+                    }
+                }
+            }
+            if (project.screenshots.isNotEmpty()) {
+                div(classes = "project-shots") {
+                    project.screenshots.forEach { shot ->
+                        safeImageSrc(shot.src)?.let { src ->
+                            img(src = src, alt = shot.alt, classes = "project-shot") {
+                                attributes["loading"] = "lazy"
+                            }
+                        }
+                    }
+                }
+            }
+            if (project.links.isNotEmpty()) {
+                div(classes = "project-dialog-links") {
+                    project.links.forEach { link ->
+                        a(href = safeHref(link.url), target = "_blank") {
+                            attributes["rel"] = "noopener noreferrer"
+                            attributes["data-en"] = link.labelEn
+                            +link.label
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 fun HTML.landingPage(
     projects: List<Project>,
@@ -172,41 +279,14 @@ fun HTML.landingPage(
                 } else {
                     div(classes = "project-grid") {
                         projects.forEachIndexed { index, project ->
-                            val featuredClass = if (project.featured) " featured" else ""
-                            div(classes = "project-card$featuredClass ${accentClass(index)}") {
-                                div(classes = "project-thumb") {
-                                    val thumbSrc = project.imageUrl?.let { safeImageSrc(it) }
-                                    if (thumbSrc != null) {
-                                        img(src = thumbSrc, alt = project.name, classes = "project-thumb-img")
-                                    } else {
-                                        unsafe { raw(projectIconMarkup(project.icon)) }
-                                    }
-                                    if (project.featured) {
-                                        span(classes = "featured-badge") {
-                                            attributes["data-en"] = "★ Featured"
-                                            +"★ Destacado"
-                                        }
-                                    }
-                                }
-                                h3 { +project.name }
-                                p {
-                                    attributes["data-en"] = project.descriptionEn
-                                    +project.description
-                                }
-                                if (project.tags.isNotEmpty()) {
-                                    ul(classes = "project-tags") {
-                                        project.tags.forEach { tag ->
-                                            li { span { +tag } }
-                                        }
-                                    }
-                                }
-                                a(href = safeHref(project.url), target = "_blank") {
-                                    attributes["rel"] = "noopener noreferrer"
-                                    attributes["data-en"] = "View project ↗"
-                                    +"Ver proyecto ↗"
-                                }
-                            }
+                            projectCard(project, accentClass(index))
                         }
+                    }
+                    // Las fichas se renderizan cerradas en el propio HTML en lugar de
+                    // construirse con JavaScript: asi el conmutador de idioma las
+                    // traduce al cargar y los textos no se duplican en el script.
+                    projects.forEachIndexed { index, project ->
+                        projectDialog(project, accentClass(index))
                     }
                 }
             }
@@ -259,5 +339,6 @@ fun HTML.landingPage(
             p { +"© ${java.time.Year.now()} Carlos Gelpi" }
         }
         script(src = "static/js/i18n.js") {}
+        script(src = "static/js/projects.js") {}
     }
 }

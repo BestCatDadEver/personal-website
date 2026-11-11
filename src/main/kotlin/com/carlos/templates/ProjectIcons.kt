@@ -44,6 +44,12 @@ private val PROJECT_ICON_BODIES = mapOf(
         <circle cx="12" cy="12" r="3"/>
         <path d="M12 3V5M12 19V21M21 12H19M5 12H3M18.4 5.6L17 7M7 17L5.6 18.4M18.4 18.4L17 17M7 7L5.6 5.6"/>
     """.trimIndent(),
+    ProjectIcon.SERVICES to """
+        <rect x="3" y="8" width="18" height="12" rx="2"/>
+        <path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+        <path d="M3 13H21"/>
+        <path d="M10.5 12.2V14.6H13.5V12.2"/>
+    """.trimIndent(),
     ProjectIcon.POKEDEX to """
         <circle cx="12" cy="12" r="9"/>
         <path d="M3 12H9"/>
