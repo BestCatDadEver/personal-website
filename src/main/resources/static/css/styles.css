@@ -639,12 +639,14 @@ section h2::before {
     line-height: 1.7;
 }
 
-/* Las capturas de movil son verticales: minmax estrecho para que quepan varias
-   en fila sin recortarlas ni estirarlas. */
+/* Las capturas de movil son verticales y hay que poder verlas varias a la vez.
+   auto-fit, y no auto-fill, para que los huecos sobrantes se colapsen y las
+   capturas se repartan el ancho en vez de quedarse pequenas en pantalla grande.
+   El minimo es 120px porque con 140px no entran dos columnas en un movil. */
 .project-shots {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 0.75rem;
 }
 
