@@ -158,6 +158,53 @@ class StaticSiteTest {
     }
 
     @Test
+    fun `todopro thumbnail is one of its screenshots`() {
+        val todopro = InMemoryProjectRepository().findAll().single { it.slug == "todopro" }
+        val thumbnail = todopro.imageUrl
+        assertTrue(thumbnail != null, "TodoPro no tiene miniatura")
+        assertTrue(
+            todopro.screenshots.any { it.src == thumbnail },
+            "La miniatura no es una de las capturas: $thumbnail",
+        )
+    }
+
+    /** Si la captura no es un boton, no se puede ampliar con el teclado. */
+    @Test
+    fun `screenshots sit inside a zoom button`() {
+        val shots = InMemoryProjectRepository().findAll().flatMap { it.screenshots }
+        assertTrue(shots.isNotEmpty(), "No hay capturas que comprobar")
+        shots.forEach { shot ->
+            val button = Regex(
+                """<button class="project-shot"[^>]*>\s*<img[^>]*src="${Regex.escape(shot.src)}"""",
+            )
+            assertTrue(button.containsMatchIn(html), "La captura ${shot.src} no esta dentro de un boton")
+        }
+    }
+
+    @Test
+    fun `screenshots carry both languages for the alt text`() {
+        val shots = InMemoryProjectRepository().findAll().flatMap { it.screenshots }
+        shots.forEach { shot ->
+            assertTrue(html.contains("""alt="${shot.alt}""""), "Falta el alt de ${shot.src}")
+            assertTrue(
+                html.contains("""data-en-alt="${shot.altEn}""""),
+                "Falta la traduccion del alt de ${shot.src}",
+            )
+        }
+    }
+
+    @Test
+    fun `there is a single lightbox and it has no empty src`() {
+        assertEquals(
+            1,
+            Regex("""<dialog[^>]*id="lightbox"""").findAll(html).count(),
+            "Deberia haber exactamente un visor en la pagina",
+        )
+        // Un src vacio hace que el navegador vuelva a pedir la propia pagina.
+        assertTrue(!html.contains("src=\"\""), "Hay un src vacio en el HTML")
+    }
+
+    @Test
     fun `projects json is valid and not empty`() {
         val projects = InMemoryProjectRepository().findAll()
         val parsed = Json.parseToJsonElement(renderProjectsJson(projects)).jsonArray

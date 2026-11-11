@@ -111,6 +111,28 @@ private fun FlowContent.projectCard(project: Project, accent: String) {
 }
 
 /**
+ * Visor a pantalla completa para ampliar una captura.
+ *
+ * Hay uno solo para toda la pagina y el script le cambia la imagen, en lugar de
+ * un visor por captura. Se abre como segundo <dialog> modal por encima de la
+ * ficha: el navegador los apila y Escape cierra siempre el de arriba.
+ */
+private fun FlowContent.lightbox() {
+    dialog(classes = "lightbox") {
+        attributes["id"] = "lightbox"
+        button(classes = "lightbox-close") {
+            attributes["type"] = "button"
+            attributes["data-lightbox-close"] = ""
+            attributes["aria-label"] = "Cerrar"
+            +"\u00d7"
+        }
+        // Sin atributo src: uno vacio hace que el navegador pida la propia
+        // pagina. El script lo rellena al abrir el visor.
+        img(alt = "", classes = "lightbox-image")
+    }
+}
+
+/**
  * Ficha del proyecto. Usa <dialog> en vez de un div propio para no reimplementar
  * el cierre con Escape, la captura del foco y el fondo inerte.
  */
@@ -144,8 +166,14 @@ private fun FlowContent.projectDialog(project: Project, accent: String) {
                 div(classes = "project-shots") {
                     project.screenshots.forEach { shot ->
                         safeImageSrc(shot.src)?.let { src ->
-                            img(src = src, alt = shot.alt, classes = "project-shot") {
-                                attributes["loading"] = "lazy"
+                            // Un <button> de verdad: la captura se amplia tambien con
+                            // teclado, y el nombre accesible sale del alt de la imagen.
+                            button(classes = "project-shot") {
+                                attributes["type"] = "button"
+                                img(src = src, alt = shot.alt) {
+                                    attributes["data-en-alt"] = shot.altEn
+                                    attributes["loading"] = "lazy"
+                                }
                             }
                         }
                     }
@@ -337,6 +365,9 @@ fun HTML.landingPage(
         }
         footer {
             p { +"© ${java.time.Year.now()} Carlos Gelpi" }
+        }
+        if (projects.any { it.screenshots.isNotEmpty() }) {
+            lightbox()
         }
         script(src = "static/js/i18n.js") {}
         script(src = "static/js/projects.js") {}

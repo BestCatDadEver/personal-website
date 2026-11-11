@@ -50,6 +50,7 @@ class InMemoryProjectRepository : ProjectRepository {
                 "them. The exact address and the client's contact details are revealed only " +
                 "once you accept.",
             icon = ProjectIcon.SERVICES,
+            imageUrl = "static/images/projects/todopro/login.jpg",
             screenshots = listOf(
                 Screenshot(
                     src = "static/images/projects/todopro/login.jpg",

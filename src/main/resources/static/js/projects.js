@@ -4,6 +4,8 @@
         return;
     }
 
+    var lightbox = document.getElementById("lightbox");
+
     function dialogFor(card) {
         return document.getElementById("project-" + card.getAttribute("data-project-open"));
     }
@@ -17,7 +19,6 @@
         } else {
             dialog.setAttribute("open", "");
         }
-        document.body.classList.add("dialog-open");
     }
 
     function closeDialog(dialog) {
@@ -25,8 +26,21 @@
             dialog.close();
         } else {
             dialog.removeAttribute("open");
-            document.body.classList.remove("dialog-open");
         }
+        syncBodyLock();
+    }
+
+    /**
+     * El bloqueo del scroll se deduce de si queda alguna ficha abierta, en vez de
+     * ponerlo y quitarlo desde cada sitio que abre o cierra. Con varios dialogos
+     * apilados es facil que una de esas llamadas sobre o falte y el fondo quede
+     * bloqueado para siempre.
+     */
+    function syncBodyLock() {
+        document.body.classList.toggle(
+            "dialog-open",
+            document.querySelector(".project-dialog[open]") !== null
+        );
     }
 
     cards.forEach(function (card) {
@@ -35,23 +49,32 @@
             return;
         }
 
-        card.addEventListener("click", function () {
+        function open() {
             openDialog(dialog);
-        });
+            syncBodyLock();
+        }
+
+        card.addEventListener("click", open);
 
         // La tarjeta es un div con role="button", asi que el teclado no la activa
         // sola: hay que reproducir lo que un <button> hace con Enter y Espacio.
         card.addEventListener("keydown", function (event) {
             if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
                 event.preventDefault();
-                openDialog(dialog);
+                open();
             }
         });
     });
 
     document.querySelectorAll(".project-dialog").forEach(function (dialog) {
-        dialog.addEventListener("close", function () {
-            document.body.classList.remove("dialog-open");
+        dialog.addEventListener("close", syncBodyLock);
+
+        // Con el visor abierto encima, Escape llega como "cancel" a los dos
+        // dialogos y cerraria tambien la ficha. Solo debe cerrarse el de arriba.
+        dialog.addEventListener("cancel", function (event) {
+            if (lightbox && lightbox.open) {
+                event.preventDefault();
+            }
         });
 
         // Pulsar fuera de la ficha la cierra. El contenido vive en un hijo que
@@ -68,5 +91,35 @@
                 closeDialog(dialog);
             });
         });
+    });
+
+    // --- Ampliar capturas --------------------------------------------------
+    if (!lightbox) {
+        return;
+    }
+    var lightboxImage = lightbox.querySelector(".lightbox-image");
+
+    document.querySelectorAll(".project-shot").forEach(function (shot) {
+        shot.addEventListener("click", function () {
+            var source = shot.querySelector("img");
+            if (!source) {
+                return;
+            }
+            // La imagen se toma del propio <img> en vez de duplicar la ruta en un
+            // atributo, asi no hay dos sitios que puedan quedar desalineados.
+            lightboxImage.src = source.src;
+            lightboxImage.alt = source.alt;
+            // Segundo dialogo modal sobre la ficha: el navegador los apila.
+            openDialog(lightbox);
+        });
+    });
+
+    lightbox.addEventListener("click", function (event) {
+        // Aqui no hay contenedor interior que cubra el cuadro: cualquier click
+        // que no sea sobre la propia imagen cierra el visor. Eso cubre tanto el
+        // fondo como el boton de cerrar, sin un listener aparte para el boton.
+        if (event.target !== lightboxImage) {
+            closeDialog(lightbox);
+        }
     });
 })();
