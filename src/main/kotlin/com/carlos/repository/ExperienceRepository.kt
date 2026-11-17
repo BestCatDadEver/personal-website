@@ -30,13 +30,13 @@ class InMemoryExperienceRepository : ExperienceRepository {
                 "Desarrollo nativo en Kotlin: implementación de funcionalidades clave e integración de SDKs de proveedores.",
                 "Consumo de APIs RESTful para gestión de transacciones, saldos, préstamos y plazos fijos.",
                 "Interfaces con XML y Jetpack Compose, publicación en Play Store y pipelines de CI/CD.",
-                "Seguridad de aplicaciones: escaneos SAST/MAST y resolución de vulnerabilidades detectadas.",
+                "Seguridad de aplicaciones: escaneos SAST/DAST y resolución de vulnerabilidades detectadas.",
             ),
             highlightsEn = listOf(
                 "Native Kotlin development: implementation of key features and integration of provider SDKs.",
                 "Consumption of RESTful APIs for managing transactions, balances, loans, and fixed-term deposits.",
                 "Interfaces with XML and Jetpack Compose, Play Store publishing and CI/CD pipelines.",
-                "Application security: SAST/MAST scans and remediation of detected vulnerabilities.",
+                "Application security: SAST/DAST scans and remediation of detected vulnerabilities.",
             ),
         ),
         Experience(
